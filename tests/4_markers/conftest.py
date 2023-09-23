@@ -10,7 +10,8 @@ from mbox import MBox
 
 
 MARKERS = dict(smoke='Main positive tests', exception='Exception handling tests',
-               read='Message reading tests', answer='Message answering tests')
+               read='Message reading tests', answer='Message answering tests',
+               num_messages='Set number for test messages')
 
 
 # Хук регистрирует пользовательские маркеры, чтобы избежать варнингов вида PytestUnknownMarkWarning

@@ -94,6 +94,11 @@ class MBox:
         self.mbox.clear()
         self.mbox.close()
 
+    def unused_method(self):
+        print('This method is unused')
+        print('We added it to the module in order to check Code coverage')
+        print('These three lines are missed from testing')
+
     def _create_message(self):
         return mailbox.mboxMessage()
 
