@@ -7,6 +7,7 @@ from faker import Faker
 
 from mbox import Message
 
+
 # В текущем файле продемонстрируем работу пользовательского маркера с параметром (@pytest.mark.num_messages())
 
 # Для работы тестов из данного файла необходимо установить пакет Faker: pip3 install faker.

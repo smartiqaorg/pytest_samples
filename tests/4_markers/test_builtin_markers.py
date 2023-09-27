@@ -44,7 +44,8 @@ def message():
 # [ PASSED test ] Проверяет, что метод to_dict() возвращает правильное представление сообщения в виде словаря.
 def test_message_as_dict(message):
     dict_from_message = message.to_dict()
-    expected_dict = dict(frm=message.frm, to=message.to, subj=message.subj, content=message.content, state=message.state)
+    expected_dict = dict(frm=message.frm, to=message.to, subj=message.subj, content=message.content, state=message.state,
+                         id=message.id)
     assert dict_from_message == expected_dict
 
 

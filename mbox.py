@@ -1,5 +1,8 @@
 import mailbox
 from dataclasses import dataclass, asdict
+import email
+
+__version__ = "1.0.0"
 
 
 @dataclass
@@ -9,10 +12,11 @@ class Message:
     subj: str = 'Default subj'
     content: str = 'This is default text'
     state: str = 'Unread'
+    id: str = 'None'
 
     @staticmethod
     def __version__():
-        return '1.0.0'
+        return __version__
 
     def __post_init__(self):
         for (name, field_type) in self.__annotations__.items():
@@ -32,6 +36,7 @@ class Message:
 
 
 class MessageHeader:
+    ID = 'ID'
     FROM = 'From'
     TO = 'To'
     SUBJECT = 'Subject'
@@ -53,16 +58,22 @@ class InvalidIdError(Exception):
 class MBox:
 
     def __init__(self, path):
-        self.mbox = mailbox.mbox(path=f'{path}/smartiqa.mbox')
+        self._path = f"{path}/smartiqa.mbox"
+        self.mbox = mailbox.mbox(path=self._path)
+
+    def path(self):
+        return self._path
 
     def add_message(self, message: Message):
-        msg = self._dump_message(message)
+        msg = self._message_to_struct(message)
         id = self.mbox.add(msg)
+        msg['ID'] = str(id)
+        self.mbox.update({id: msg})
         self._flush()
         return id
 
     def update_message(self, id: str, message: Message):
-        self.mbox.update({id: self._dump_message(message)})
+        self.mbox.update({id: self._message_to_struct(message)})
 
     def get_message(self, id: str):
         msg = self.mbox.get(id)
@@ -72,7 +83,8 @@ class MBox:
                        to=msg.get(MessageHeader.TO),
                        subj=msg.get(MessageHeader.SUBJECT),
                        content=msg.get_payload().replace('\n', ''),
-                       state=msg.get(MessageHeader.STATE))
+                       state=msg.get(MessageHeader.STATE),
+                       id=str(id))
 
     def answer_message(self, id: str):
         message = self.get_message(id)
@@ -84,14 +96,23 @@ class MBox:
         message.state = MessageState.READ
         self.update_message(id, message)
 
+    def list_messages(self):
+        return [self._struct_to_message(msg) for msg in self.mbox.values()]
+
     def count(self):
         return self.mbox.__len__()
+
+    def remove_message(self, id: str):
+        self.mbox.remove(id)
 
     def clear(self):
         self.mbox.clear()
 
-    def close(self):
+    def clear_and_close(self):
         self.mbox.clear()
+        self.mbox.close()
+
+    def close(self):
         self.mbox.close()
 
     def unused_method(self):
@@ -99,17 +120,24 @@ class MBox:
         print('We added it to the module in order to check Code coverage')
         print('These three lines are missed from testing')
 
-    def _create_message(self):
-        return mailbox.mboxMessage()
-
-    def _dump_message(self, message: Message):
-        msg = self._create_message()
+    @staticmethod
+    def _message_to_struct(message: Message) -> email.message:
+        msg = mailbox.mboxMessage()
         msg['From'] = message.frm
         msg['To'] = message.to
         msg['Subject'] = message.subj
         msg['State'] = message.state
         msg.set_payload(message.content)
         return msg
+
+    @staticmethod
+    def _struct_to_message(struct: email.message) -> Message:
+        return Message(frm=struct.get(MessageHeader.FROM),
+                       to=struct.get(MessageHeader.TO),
+                       subj=struct.get(MessageHeader.SUBJECT),
+                       content=struct.get_payload().replace('\n', ''),
+                       state=struct.get(MessageHeader.STATE),
+                       id=struct.get(MessageHeader.ID))
 
     def _flush(self):
         return self.mbox.flush()

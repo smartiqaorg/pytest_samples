@@ -27,7 +27,7 @@ def mbox():
         mbox_obj = MBox(mb_path)
         yield mbox_obj
         # 3. Удаляем файл smartiqa.mbox
-        mbox_obj.close()
+        mbox_obj.clear_and_close()
 
 
 # Функция (НЕ фикстура), которая определяет скоуп на основе наличия/отсутствия параметра --func-scope
@@ -48,7 +48,7 @@ def mbox_with_dynamic_scope():
         mbox_obj = MBox(mb_path)
         yield mbox_obj
         # 3. Удаляем файл smartiqa.mbox
-        mbox_obj.close()
+        mbox_obj.clear_and_close()
 
 
 # Фикстура удаляет сообщения из базы, что позволяет каждому тесту начинать работу с чистой базы.

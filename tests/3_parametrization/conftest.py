@@ -16,7 +16,7 @@ def mbox():
         mb_path = Path(mb_dir)  # {PosixPath} '/var/folders/16/1js1t0tj6x5fm2twrq82tj_w0000gn/T/tmpwyh3cxh8'
         mbox_obj = MBox(mb_path)
         yield mbox_obj
-        mbox_obj.close()
+        mbox_obj.clear_and_close()
 
 
 # Фикстура удаляет сообщения из базы, что позволяет каждому тесту начинать работу с чистой базы.
